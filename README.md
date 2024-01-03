@@ -1,1 +1,1 @@
-# philosophers_C
+# Problema dos Filósofos em C
