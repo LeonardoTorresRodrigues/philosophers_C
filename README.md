@@ -1,1 +1,1 @@
-# Problema dos Filósofos em C
+# Problema do Jantar dos Filósofos em C
