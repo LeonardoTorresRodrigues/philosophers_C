@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <pthread.h>
+#include <unistd.h>
 
 #define N 5
 #define LEFT (i + N - 1) % N
@@ -9,13 +11,15 @@
 #define EATING 2
 
 typedef int semaphore;
+
 int state[N];
 semaphore mutex = 1;
 semaphore s[N];
+bool shouldTerminate = false;
 
 void philosopher(int i)
 {
-    while (1)
+    while (!shouldTerminate)
     {
         think();
         take_forks(i);
@@ -33,7 +37,7 @@ void take_forks(int i)
     down(&s[i]);
 }
 
-void put_forks(i)
+void put_forks(int i)
 {
     down(&mutex);
     state[i] = THIKING;
@@ -42,7 +46,7 @@ void put_forks(i)
     up(&mutex);
 }
 
-void test(i)
+void test(int i)
 {
     if (state[i] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING)
     {
@@ -53,39 +57,48 @@ void test(i)
 
 void think()
 {
-    printf('Filósofo está pensando...\n');
+    printf("Filósofo está pensando...\n");
+    usleep(rand() % 1000000);
 }
 
 void eat()
 {
-    printf('Filósofo está comendo...\n');
+    printf("Filósofo está comendo...\n");
+    usleep(rand() % 1000000);
 }
 
 void down(semaphore *s)
 {
-    // decrementar semáforo
+    pthread_mutex_lock(s);
 }
 
 void up(semaphore *s)
 {
-    // incrementar semáforo
+    pthread_mutex_unlock(s);
 }
 
 int main()
 {
+    srand(time(NULL));
+
     for (int i = 0; i < N; i++)
     {
         state[i] = THIKING;
+        pthread_mutex_init(&s[i], NULL);
     }
+
+    pthread_t philosophers[N];
+    for (int i = 0; i < N; i++)
+    {
+        pthread_create(&philosophers[i], NULL, (void *)philosopher, (void *)i);
+    }
+
+    usleep(5000000);
+    shouldTerminate = true;
 
     for (int i = 0; i < N; i++)
     {
-        // thread/fork
-    }
-
-    for (int i = 0; i < N; i++)
-    {
-        // esperar thread/fork
+        pthread_join(philosophers[i], NULL);
     }
 
     return 0;
