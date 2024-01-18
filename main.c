@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <semaphore.h>
 
 #define N 5
 #define LEFT (i + N - 1) % N
@@ -12,17 +13,23 @@
 #define HUNGRY 1
 #define EATING 2
 
-typedef int semaphore;
+typedef struct
+{
+    sem_t sem;
+} semaphore;
 
 int state[N];
-semaphore mutex = 1;
+semaphore mutex;
 semaphore s[N];
 bool shouldTerminate = false;
 
-void think();
-void down(semaphore *s);
-void eat();
 void take_forks(int i);
+void put_forks(int i);
+void test(int i);
+void think();
+void eat();
+void down(semaphore *s);
+void up(semaphore *s);
 
 void philosopher(int i)
 {
@@ -76,12 +83,12 @@ void eat()
 
 void down(semaphore *s)
 {
-    sem_wait(s);
+    sem_wait(&(s->sem));
 }
 
 void up(semaphore *s)
 {
-    sem_post(s);
+    sem_post(&(s->sem));
 }
 
 int main()
@@ -91,8 +98,11 @@ int main()
     for (int i = 0; i < N; i++)
     {
         state[i] = THIKING;
-        pthread_mutex_init(&s[i], NULL);
+        // pthread_mutex_init(&s[i], NULL);
+        sem_init(&(s[i].sem), 0, 0);
     }
+
+    sem_init(&(mutex.sem), 0, 1);
 
     pthread_t philosophers[N];
     for (int i = 0; i < N; i++)
@@ -107,6 +117,13 @@ int main()
     {
         pthread_join(philosophers[i], NULL);
     }
+
+    for (int i = 0; i < N; i++)
+    {
+        sem_destroy(&(s[i].sem));
+    }
+
+    sem_destroy(&(mutex.sem));
 
     return 0;
 }
