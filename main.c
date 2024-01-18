@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define N 5
 #define LEFT (i + N - 1) % N
@@ -16,6 +18,11 @@ int state[N];
 semaphore mutex = 1;
 semaphore s[N];
 bool shouldTerminate = false;
+
+void think();
+void down(semaphore *s);
+void eat();
+void take_forks(int i);
 
 void philosopher(int i)
 {
@@ -69,12 +76,12 @@ void eat()
 
 void down(semaphore *s)
 {
-    pthread_mutex_lock(s);
+    sem_wait(s);
 }
 
 void up(semaphore *s)
 {
-    pthread_mutex_unlock(s);
+    sem_post(s);
 }
 
 int main()
