@@ -31,8 +31,10 @@ void eat();
 void down(semaphore *s);
 void up(semaphore *s);
 
-void philosopher(int i)
+void philosopher(void *arg)
 {
+    int i = *((int *)arg);
+
     while (!shouldTerminate)
     {
         think();
@@ -105,9 +107,12 @@ int main()
     sem_init(&(mutex.sem), 0, 1);
 
     pthread_t philosophers[N];
+    int philosopher_ids[N];
+
     for (int i = 0; i < N; i++)
     {
-        pthread_create(&philosophers[i], NULL, (void *)philosopher, (void *)i);
+        philosopher_ids[i] = i;
+        pthread_create(&philosophers[i], NULL, (void *)philosopher, &philosopher_ids[i]);
     }
 
     usleep(5000000);
