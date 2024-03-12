@@ -100,7 +100,6 @@ int main()
     for (int i = 0; i < N; i++)
     {
         state[i] = THIKING;
-        // pthread_mutex_init(&s[i], NULL);
         sem_init(&(s[i].sem), 0, 0);
     }
 
