@@ -26,8 +26,8 @@ bool shouldTerminate = false;
 void take_forks(int i);
 void put_forks(int i);
 void test(int i);
-void think();
-void eat();
+void think(int i);
+void eat(int i);
 void down(semaphore *s);
 void up(semaphore *s);
 
@@ -37,9 +37,9 @@ void philosopher(void *arg)
 
     while (!shouldTerminate)
     {
-        think();
+        think(i);
         take_forks(i);
-        eat();
+        eat(i);
         put_forks(i);
     }
 }
@@ -48,6 +48,7 @@ void take_forks(int i)
 {
     down(&mutex);
     state[i] = HUNGRY;
+    printf("Filósofo %d está faminto. \n", i);
     test(i);
     up(&mutex);
     down(&s[i]);
@@ -57,6 +58,7 @@ void put_forks(int i)
 {
     down(&mutex);
     state[i] = THIKING;
+    printf("Filósofo %d terminou de comer e está pensando. \n", i);
     test(LEFT);
     test(RIGHT);
     up(&mutex);
@@ -67,19 +69,20 @@ void test(int i)
     if (state[i] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING)
     {
         state[i] = EATING;
+        printf("Filósofo %d está comendo. \n", i);
         up(&s[i]);
     }
 }
 
-void think()
+void think(int i)
 {
-    printf("Filósofo está pensando...\n");
+    printf("Filósofo %d está pensando... \n", i);
     usleep(rand() % 1000000);
 }
 
-void eat()
+void eat(int i)
 {
-    printf("Filósofo está comendo...\n");
+    printf("Filósofo %d está comendo... \n", i);
     usleep(rand() % 1000000);
 }
 
